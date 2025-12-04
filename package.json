@@ -1,0 +1,38 @@
+{
+  "name": "blocksfun",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --https",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@coral-xyz/borsh": "^0.32.1",
+    "@headlessui/vue": "^1.7.23",
+    "@metaplex-foundation/js": "^0.20.1",
+    "@metaplex-foundation/mpl-token-metadata": "2.13.0",
+    "@nuxt/eslint": "1.10.0",
+    "@nuxt/fonts": "0.12.1",
+    "@nuxt/icon": "2.1.0",
+    "@nuxt/image": "2.0.0",
+    "@nuxt/ui": "^4.2.1",
+    "@solana/addresses": "^5.0.0",
+    "@solana/codecs": "^5.0.0",
+    "@solana/kit": "^5.0.0",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/wallet-adapter-wallets": "^0.19.37",
+    "@tailwindcss/vite": "^4.1.17",
+    "@tanstack/vue-query": "^5.92.0",
+    "eslint": "^9.0.0",
+    "nuxt": "^4.2.1",
+    "nuxt-lucide-icons": "2.0.0",
+    "nuxt-svgo": "^4.2.6",
+    "solana-wallets-vue": "^0.7.1",
+    "tailwindcss": "^4.1.17",
+    "vue": "^3.5.25",
+    "vue-router": "^4.6.3"
+  }
+}
