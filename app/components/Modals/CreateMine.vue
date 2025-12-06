@@ -30,80 +30,161 @@
               leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel
-                class="relative transform overflow-hidden rounded-lg text-white shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+                class="relative transform overflow-hidden rounded-lg text-white shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[660px]"
               >
-                <div class="relative bg-[#222328] pt-3 pb-6 sm:px-5 sm:pt-3 sm:pb-8">
+                <div class="relative bg-[#222328] pt-3 pb-6 sm:px-5 sm:pt-3 sm:pb-8 overflow-hidden">
                   <!-- Background image -->
-                  <ModalHeaderBg
-                    class="absolute top-0 left-0 pointer-events-none"
-                  />
+                  <HeaderCardBg />
+                  
+                  <!-- Gradient overlay at bottom -->
+                  <div class="absolute bottom-0 left-0 right-0 h-[300px] bg-gradient-to-t from-[#0e1211] to-transparent pointer-events-none z-0"></div>
                   
                   <!-- Header with Close Button -->
-                  <div class="relative flex items-start justify-between mb-6">
-                    <div class="flex flex-col">
-                      <h3 class="font-raj font-bold text-2xl ">
+                  <div class="relative z-10 flex items-start justify-between mb-3">
+                    <div class="flex flex-col gap-0.5">
+                      <h3 class="font-raj font-bold text-2xl text-[#E5E9EC]">
                         Create Mine
                       </h3>
-                      <p class="text-sm text-[#E5E9EC] font-raj text-bold leading-[0.5]">
+                      <p class="text-base text-[#E5E9EC] font-raj font-bold leading-[0.6]">
                         Set your mine parameters and launch your pool.
                       </p>
                     </div>
                     <button
                       @click="closeModal"
-                      class="text-white hover:text-gray-300 transition-colors"
+                      class="mt-3 text-white hover:text-gray-300 transition-colors"
                     >
-                      <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
+                      <CancelIcon class="w-[23px]! h-[23px]!" />
                     </button>
                   </div>
+                  <div class="relative z-10 h-px w-full bg-[rgba(62,63,71,0.58)] mb-11"></div>
 
-                  <form @submit.prevent="onSubmit" class="space-y-6">
-                    <!-- Token Search -->
-                    <div class="flex flex-col gap-2.5">
-                      <label class="font-raj font-bold text-sm text-[#E5E9EC]">
+
+                  <form @submit.prevent="onSubmit" class="relative z-10">
+                    <div class="space-y-5">
+
+                   
+                    <!-- Token Select -->
+                    <div class="flex flex-col gap-1">
+                      <label class="font-raj font-bold text-base text-[#E5E9EC]">
                         Token
                       </label>
-                      <div class="relative">
-                        <input
-                          v-model="state.tokenAddress"
-                          type="text"
-                          placeholder="Search by token name, symbol or address"
-                          class="w-full rounded-lg border-2 border-[rgba(83,86,103,0.57)] h-10.5 px-3.5 pr-10 bg-transparent outline-none text-white placeholder:text-[#535667] font-raj"
-                          required
-                        />
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3.5">
-                          <SearchIcon class="w-5 h-5 text-[#535667]" />
-                        </div>
-                      </div>
+                      <Listbox v-model="state.tokenAddress" as="div" class="relative">
+                        <ListboxButton
+                          :class="[
+                            'w-full rounded-[10px] border-2 border-[rgba(83,86,103,0.57)] h-[42px] px-3.5 flex items-center gap-2.5 cursor-pointer',
+                            selectedToken ? 'bg-[#3A3C46] pr-3.5' : 'bg-[#535667] pr-3.5',
+                          ]"
+                        >
+                          <img
+                            v-if="selectedToken"
+                            :src="selectedToken.image"
+                            :alt="selectedToken.symbol"
+                            class="w-[30px] h-[30px] rounded-full flex-shrink-0"
+                          />
+                          <span
+                            v-if="selectedToken"
+                            class="text-[#9497A4] font-chakra font-bold text-base flex-1 text-left"
+                          >
+                            {{ selectedToken.symbol }}
+                          </span>
+                          <span v-else class="text-[#9497A4] font-chakra font-bold text-base flex-1 text-left">
+                            Search by token name, symbol or address
+                          </span>
+                          <button
+                            v-if="selectedToken"
+                            type="button"
+                            @click.stop="state.tokenAddress = ''"
+                            class="text-[#9497A4] hover:text-white transition-colors flex-shrink-0"
+                          >
+                            <svg
+                              class="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                          <svg
+                            v-else
+                            class="w-[10px] h-[10px] text-[#9497A4] flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </ListboxButton>
+                        <Transition
+                          enter-active-class="transition duration-100 ease-out"
+                          enter-from-class="transform scale-95 opacity-0"
+                          enter-to-class="transform scale-100 opacity-100"
+                          leave-active-class="transition duration-75 ease-in"
+                          leave-from-class="transform scale-100 opacity-100"
+                          leave-to-class="transform scale-95 opacity-0"
+                        >
+                          <ListboxOptions
+                            class="absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-lg border-2 border-[rgba(83,86,103,0.57)] bg-[#222328] py-1 shadow-lg"
+                          >
+                            <ListboxOption
+                              v-for="token in availableTokens"
+                              :key="token.address"
+                              :value="token.address"
+                              v-slot="{ active, selected }"
+                              as="template"
+                            >
+                              <li
+                                :class="[
+                                  active ? 'bg-[rgba(83,86,103,0.4)]' : '',
+                                  'relative cursor-pointer select-none py-2 px-3.5 flex items-center gap-2.5',
+                                ]"
+                              >
+                                <img
+                                  :src="token.image"
+                                  :alt="token.symbol"
+                                  class="w-[30px] h-[30px] rounded-full flex-shrink-0"
+                                />
+                                <span
+                                  :class="[
+                                    selected ? 'font-bold' : 'font-normal',
+                                    'text-white font-chakra font-bold text-base',
+                                  ]"
+                                >
+                                  {{ token.symbol }}
+                                </span>
+                              </li>
+                            </ListboxOption>
+                          </ListboxOptions>
+                        </Transition>
+                      </Listbox>
                     </div>
 
                     <!-- Fee Tier -->
-                    <div class="flex flex-col gap-2.5">
-                      <label class="font-raj font-bold text-sm text-[#E5E9EC]">
+                    <div class="flex flex-col gap-1">
+                      <label class="font-raj font-bold text-base text-[#E5E9EC]">
                         FEE Tier
                       </label>
-                      <div class="flex gap-2">
+                      <div class="flex gap-2.5">
                         <button
                           v-for="tier in feeTiers"
                           :key="tier"
                           type="button"
                           @click="state.houseEdge = tier.toString()"
                           :class="[
-                            'px-4 py-2 rounded-lg font-raj font-bold text-sm transition-colors',
+                            'flex-1 h-[42px] px-3.5 rounded-[10px] font-chakra font-bold text-base transition-colors',
                             state.houseEdge === tier.toString()
-                              ? 'bg-[#FF4B01] text-white'
-                              : 'bg-[rgba(83,86,103,0.25)] text-white hover:bg-[rgba(83,86,103,0.4)]',
+                              ? 'bg-[#FF4B01] text-[#F7F8FF]'
+                              : 'bg-[rgba(83,86,103,0.48)] text-[#9497A4] hover:bg-[rgba(83,86,103,0.6)]',
                           ]"
                         >
                           {{ tier }}%
@@ -112,21 +193,21 @@
                     </div>
 
                     <!-- Max Win -->
-                    <div class="flex flex-col gap-2.5">
-                      <label class="font-raj font-bold text-sm text-[#E5E9EC]">
+                    <div class="flex flex-col gap-1">
+                      <label class="font-raj font-bold text-base text-[#E5E9EC]">
                         Max Win
                       </label>
-                      <div class="flex items-center gap-2">
+                      <div class="flex items-center gap-2.5">
                         <input
                           v-model.number="state.maxWinPercent"
                           type="number"
                           step="1"
                           min="0"
                           max="100"
-                          class="w-full rounded-lg border-2 border-[rgba(83,86,103,0.57)] h-10.5 px-3.5 bg-transparent outline-none text-white font-raj"
+                          class="w-full rounded-[10px] border-2 border-[rgba(83,86,103,0.57)] h-[42px] px-3.5 bg-[#535667] outline-none text-[#9497A4] font-chakra font-bold text-base"
                           required
                         />
-                        <span class="text-white font-raj font-bold">%</span>
+                        <span class="text-[#9497A4] font-chakra font-bold text-base">%</span>
                       </div>
                       <!-- Slider -->
                       <input
@@ -135,74 +216,85 @@
                         min="0"
                         max="100"
                         step="1"
-                        class="w-full h-2 bg-[#1E1E1E] rounded-lg appearance-none cursor-pointer slider"
+                        class="w-full mt-5 h-[6px] bg-[#3A3C46] rounded-[2px] appearance-none cursor-pointer slider"
                         :style="{
-                          background: `linear-gradient(to right, #FF4B01 0%, #FF4B01 ${state.maxWinPercent}%, #1E1E1E ${state.maxWinPercent}%, #1E1E1E 100%)`,
+                          background: `linear-gradient(to right, #FF4B01 0%, #FF4B01 ${state.maxWinPercent}%, #3A3C46 ${state.maxWinPercent}%, #3A3C46 100%)`,
                         }"
                       />
                       <!-- Info Text -->
-                      <div class="flex items-start gap-2 mt-1">
-                        <svg
-                          class="w-4 h-4 text-[#535667] mt-0.5 flex-shrink-0"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                            clip-rule="evenodd"
-                          />
-                        </svg>
-                        <p class="text-xs text-[#535667] font-raj">
+                      <div class="flex items-start gap-1 mt-4">
+                        <AlertSquareIcon class="w-[18px!] h-[18px!] text-[#4B5154] mt-0.5 flex-shrink-0 " />
+                        <p class="text-md text-[#4B5154] font-raj font-semibold leading-[1.33]">
                           Percentage of total liquidity that players can win in a single bet.
                         </p>
                       </div>
                     </div>
 
                     <!-- Summary -->
-                    <div class="flex flex-col gap-3 pt-4 border-t border-[rgba(83,86,103,0.3)]">
-                      <label class="font-raj font-bold text-sm text-[#E5E9EC]">
-                        Summary
+                    <div class="flex flex-col gap-2 pt-1 border-t border-[rgba(58,60,70,0.37)]">
+                      <label class="font-raj font-bold text-base text-[#E5E9EC]">
+                        Summery
                       </label>
-                      <div class="space-y-2">
+                      <div class="bg-[rgba(58,60,70,0.37)] rounded-[6px] p-5 space-y-4">
                         <div class="flex items-center justify-between">
-                          <span class="text-sm text-[#535667] font-raj">Token</span>
-                          <span class="text-sm text-white font-raj">
-                            {{ state.tokenAddress || "—" }}
-                          </span>
+                          <span class="text-xl font-raj font-semibold text-[#E5E9EC] w-[71px]">Token</span>
+                          <div v-if="selectedToken" class="flex items-center gap-2.5">
+                            <img
+                              :src="selectedToken.image"
+                              :alt="selectedToken.symbol"
+                              class="w-[30px] h-[30px] rounded-full"
+                            />
+                            <span class="text-2xl font-raj font-bold text-[#E5E9EC]">{{ selectedToken.symbol }}</span>
+                          </div>
+                          <span v-else class="text-2xl font-raj font-bold text-[#E5E9EC]">—</span>
                         </div>
                         <div class="flex items-center justify-between">
-                          <span class="text-sm text-[#535667] font-raj">Fee Tier</span>
-                          <span class="text-sm text-white font-raj">
+                          <span class="text-xl font-raj font-semibold text-[#E5E9EC] w-[71px]">Fee Tier</span>
+                          <span class="text-2xl font-raj font-bold text-[#E5E9EC]">
                             {{ state.houseEdge ? `${state.houseEdge}%` : "—" }}
                           </span>
                         </div>
                         <div class="flex items-center justify-between">
-                          <span class="text-sm text-[#535667] font-raj">Max Win</span>
-                          <span class="text-sm text-white font-raj">
+                          <span class="text-xl font-raj font-semibold text-[#E5E9EC] w-[71px]">Max Win</span>
+                          <span class="text-2xl font-raj font-bold text-[#E5E9EC]">
                             {{ state.maxWinPercent ? `${state.maxWinPercent}%` : "—" }}
                           </span>
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <div class="mt-7 space-y-5">
 
+                
                     <!-- Submit Button -->
                     <button
                       type="submit"
                       :disabled="submitting"
-                      class="w-full bg-[#2E3239] text-white py-3 font-bold text-base uppercase disabled:opacity-50 cursor-pointer hover:bg-[#3A3F47] transition-colors rounded-lg font-raj"
+                      class="relative w-full h-[42px] text-[#0C100F] font-chakra font-bold text-base uppercase disabled:opacity-50 cursor-pointer hover:opacity-90 transition-opacity overflow-hidden"
                     >
-                      {{ submitting ? "Creating..." : "CREATE YOUR MINE" }}
+                      <ClippedCornerSvg
+                        :width="620"
+                        :height="42"
+                        fill-color="#E9E2DF"
+                        :full-width="true"
+                        :full-height="true"
+                        border-radius="8px 0 8px 8px"
+                        class="absolute inset-0"
+                      />
+                      <span class="relative z-10 flex items-center justify-center h-full">
+                        {{ submitting ? "Creating..." : "CREATE YOUR MINE" }}
+                      </span>
                     </button>
 
                     <!-- Cancel Link -->
                     <button
                       type="button"
                       @click="closeModal"
-                      class="w-full text-center text-sm text-[#535667] font-raj hover:text-[#E5E9EC] transition-colors"
+                      class="w-full text-center text-base text-[#5B5D6A] font-chakra font-bold uppercase hover:text-[#E5E9EC] transition-colors leading-[1.3]"
                     >
                       CANCEL THIS PROCESS
                     </button>
+                  </div>
                   </form>
                 </div>
               </DialogPanel>
@@ -220,14 +312,19 @@ import {
   DialogPanel,
   TransitionChild,
   TransitionRoot,
+  Listbox,
+  ListboxButton,
+  ListboxOptions,
+  ListboxOption,
 } from "@headlessui/vue";
 import { useWallet } from "solana-wallets-vue";
 import { PublicKey } from "@solana/web3.js";
 import { buildCreatePoolTransaction } from "~/lib/solana/pools";
 import { getSolanaConnection } from "~/lib/solana/rpc";
 import { useErrorModal } from "~/composables/useErrorModal";
-import SearchIcon from "~/assets/svg/search.svg";
-import ModalHeaderBg from "~/assets/svg/modal_header_bg.svg";
+import ClippedCornerSvg from "~/components/ClippedCornerSvg.vue";
+import AlertSquareIcon from "~/assets/svg/alert-square.svg";
+import CancelIcon from "~/assets/svg/cancel.svg";
 
 const router = useRouter();
 const route = useRoute();
@@ -236,10 +333,56 @@ const open = computed(() => route.query.modal === "createMine");
 
 const feeTiers = [0.5, 1, 2, 3];
 
+// Available tokens list (same as on /mines page)
+const availableTokens = [
+  {
+    symbol: "SOL",
+    players: 1800,
+    mines: 680,
+    image:
+      "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+    address: "4qAzNbdEhxVkJ2ZDuzJDeQVP9Hxwomt32STCfyFkGS4Q",
+  },
+  {
+    symbol: "USDC",
+    players: 960,
+    mines: 420,
+    image:
+      "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
+    address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  },
+];
+
+// Get token address from URL if on /mines/token/[tokenAddress] page
+const getTokenAddressFromUrl = () => {
+  const path = route.path;
+  const tokenMatch = path.match(/\/mines\/token\/([^/]+)/);
+  if (tokenMatch && tokenMatch[1]) {
+    return tokenMatch[1];
+  }
+  return "";
+};
+
 const state = reactive({
-  tokenAddress: "",
+  tokenAddress: getTokenAddressFromUrl(),
   houseEdge: "2", // Default to 2%
   maxWinPercent: 36,
+});
+
+// Watch for route changes to update token address
+watch(
+  () => route.path,
+  () => {
+    const urlTokenAddress = getTokenAddressFromUrl();
+    if (urlTokenAddress && availableTokens.some((t) => t.address === urlTokenAddress)) {
+      state.tokenAddress = urlTokenAddress;
+    }
+  }
+);
+
+// Computed property to get selected token
+const selectedToken = computed(() => {
+  return availableTokens.find((t) => t.address === state.tokenAddress);
 });
 
 const toast = useToast();
@@ -318,20 +461,20 @@ function closeModal() {
 <style scoped>
 .slider::-webkit-slider-thumb {
   appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
+  width: 13px;
+  height: 10px;
+  border-radius: 2px;
   background: #FF4B01;
   cursor: pointer;
-  border: 2px solid #1E1E1E;
+  border: none;
 }
 
 .slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
+  width: 13px;
+  height: 10px;
+  border-radius: 2px;
   background: #FF4B01;
   cursor: pointer;
-  border: 2px solid #1E1E1E;
+  border: none;
 }
 </style>

@@ -15,26 +15,7 @@
         </h1>
       </div>
 
-      <button
-        type="button"
-        @click="openCreateMineModal"
-        class="hidden sm:inline-flex relative group text-white font-raj font-semibold text-[20px] uppercase tracking-[1px] cursor-pointer hover:opacity-90 transition-opacity overflow-hidden"
-      >
-        <ClippedCornerSvg
-          :width="220"
-          :height="52"
-          fill-color="#535667"
-          :full-width="true"
-          :full-height="true"
-          border-radius="8px 0 8px 8px"
-          class="absolute inset-0"
-        />
-
-        <div class="relative z-10 flex items-center gap-3 px-17 py-3">
-          <span>Create mine</span>
-          <span class="text-[39px] leading-[0] font-medium">+</span>
-        </div>
-      </button>
+      <CreateMineButton variant="clipped" />
     </div>
 
     <div class="h-px w-full bg-[#262B33]"></div>
@@ -138,17 +119,6 @@ const assets = ref([
   },
 ]);
 
-const router = useRouter();
-const route = useRoute();
-
-const openCreateMineModal = () => {
-  router.push({
-    query: {
-      ...route.query,
-      modal: "createMine",
-    },
-  });
-};
 
 const formatPlayers = (count: number) => {
   if (count >= 1000) {

@@ -1,75 +1,111 @@
 <template>
-  <div v-if="token" class="max-w-[1380px] w-full mx-auto pt-15">
-    <div class="flex justify-between items-center">
-      <div class="flex gap-7">
-        <img class="size-24 rounded-full" :src="token?.image" />
-
-        <div class="flex flex-col">
-          <div class="flex gap-1.5 uppercase font-raj text-xl font-semibold">
-            <Arrow :filled="true" />
-            Mines
-          </div>
-
-          <span class="font-black text-5xl">{{ token.symbol }}</span>
+  <div class="max-w-[1380px] w-full mx-auto pt-15">
+    <!-- Loading state for token -->
+    <Transition name="fade" mode="out-in">
+      <div v-if="tokenLoading" key="loading">
+        <TokenHeaderSkeleton />
+        <div class="h-[3px] w-full bg-[#1E1E1E] mt-5 mb-7"></div>
+        <div class="grid grid-cols-4 space-x-5 space-y-5">
+          <MineCardSkeleton v-for="i in 4" :key="`token-skeleton-${i}`" />
         </div>
       </div>
 
-      <button
-        @click="openCreateMineModal"
-        class="bg-[#535667] text-lg font-bold py-4.5 max-w-[290px] w-full rounded-xl uppercase hover:opacity-90 transition-opacity"
-      >
-        Create Mine
-      </button>
-    </div>
-
-    <div class="h-[3px] w-full bg-[#1E1E1E] mt-5 mb-7"></div>
-
-    <div class="grid grid-cols-4 space-x-5 space-y-5">
-      <div v-for="pool in decodedPools" class="bg-[#535667] p-5 rounded-lg">
-        <div class="flex gap-3">
-          <img class="size-10! rounded-full" :src="token?.image" />
-
-          <div class="flex flex-col font-raj gap-2 font-bold">
-            <span class="text-2xl">{{ token.symbol }} Mine</span>
-            <span
-              class="bg-[rgba(153,29,255,0.32)] px-2 py-1 text-sm rounded-[3px]"
-              >House Edge {{ (pool.pool.houseEdge / 100).toFixed(2) }}%</span
-            >
-          </div>
-        </div>
-
-        <div class="my-4 bg-[rgba(62,63,71,0.58)] w-full h-px"></div>
-
-        <div class="flex">
-          <div class="w-[50%] flex flex-col font-raj">
-            <span class="font-semibold text-xl">Liquidity</span>
-            <span class="font-bold text-3xl">{{
-              (
-                Number(pool.pool.totalPoolTokens) /
-                10 ** token.decimals
-              ).toFixed(2)
-            }}</span>
-          </div>
-
-          <div class="w-[50%] flex flex-col font-raj">
-            <span class="font-semibold text-xl">Max Win</span>
-            <span class="font-bold text-3xl"
-              >{{ (pool.pool.maxWinLiqThreshold / 100).toFixed(2) }}%</span
-            >
-          </div>
-        </div>
-
-        <div class="my-4 bg-[rgba(62,63,71,0.58)] w-full h-px"></div>
-
-        <NuxtLink
-          class="bg-[#E9E2DF] text-[#0C100F] font-bold uppercase font-raj flex gap-2.5 items-center justify-center rounded-lg py-2"
-          :to="`/mines/${pool.pubkey}`"
+      <!-- Error state for token -->
+      <div v-else-if="tokenError" key="error" class="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p class="text-red-400 font-raj font-semibold text-lg">Failed to load token information</p>
+        <button
+          @click="() => refetchToken()"
+          class="bg-[#535667] text-white px-6 py-2 rounded-lg font-bold uppercase hover:opacity-90 transition-opacity"
         >
-          Enter Mine
-          <Pickaxe class="w-[26px]! h-[21px]!" :filled="true" />
-        </NuxtLink>
+          Retry
+        </button>
       </div>
-    </div>
+
+      <!-- Main content -->
+      <div v-else-if="token" key="content">
+      <div class="flex justify-between items-center">
+        <div class="flex gap-7">
+          <img class="size-24 rounded-full" :src="token?.image" />
+
+          <div class="flex flex-col">
+            <div class="flex gap-1.5 uppercase font-raj text-xl font-semibold">
+              <Arrow :filled="true" />
+              Mines
+            </div>
+
+            <span class="font-black text-5xl">{{ token.symbol }}</span>
+          </div>
+        </div>
+
+        <CreateMineButton variant="clipped" />
+      </div>
+
+      <div class="h-[3px] w-full bg-[#1E1E1E] mt-5 mb-7"></div>
+
+      <!-- Search and Sort -->
+      <SearchSortSkeleton v-if="loading" />
+      <div v-else class="flex items-center gap-4 mb-7">
+        <!-- Search Input -->
+        <div class="w-[50%] relative">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search by token name, symbol or address"
+            class="w-full rounded-lg border-2 border-[rgba(83,86,103,0.57)] h-10.5 px-3.5 pr-10 bg-transparent outline-none text-white placeholder:text-[#9497A4] placeholder:font-bold font-raj"
+          />
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
+            <SearchIcon class="icon-no-fill w-6! h-6! text-[#9497A4]" />
+          </div>
+        </div>
+
+        <!-- Sort Buttons -->
+        <div class="flex gap-2 flex-1 justify-end">
+          <button
+            v-for="sortOption in sortOptions"
+            :key="sortOption.key"
+            @click="setSortBy(sortOption.key)"
+            :class="[
+              'w-[140px] pl-3 pr-3 py-1.5 rounded-xl font-raj font-bold text-lg transition-colors flex items-center gap-2',
+              sortBy === sortOption.key
+                ? 'bg-[#FF4B01] text-white'
+                : 'bg-[rgba(83,86,103,0.5)] text-[#9497A4] hover:bg-[rgba(83,86,103,0.4)]',
+            ]"
+          >
+            <SortingIcon
+              :class="[
+                '!w-7 !h-7',
+                sortBy === sortOption.key ? 'text-white' : 'text-[#535667]',
+              ]"
+            />
+            <span>{{ sortOption.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading state for pools -->
+      <Transition name="fade" mode="out-in">
+        <div v-if="loading" key="pools-loading" class="grid grid-cols-4 space-x-5 space-y-5">
+          <MineCardSkeleton v-for="i in 4" :key="`skeleton-${i}`" />
+        </div>
+
+        <!-- Pools grid -->
+        <div v-else-if="filteredAndSortedPools && filteredAndSortedPools.length > 0" key="pools-content" class="grid grid-cols-4 space-x-5 space-y-5">
+          <MineCard
+            v-for="pool in filteredAndSortedPools"
+            :key="pool.pubkey"
+            :pool="pool"
+            :token="token"
+          />
+        </div>
+
+        <!-- No pools found -->
+        <div v-else key="no-pools" class="flex flex-col items-center justify-center min-h-[400px] gap-4">
+          <p class="text-white font-raj font-semibold text-lg">No mines found</p>
+          <p class="text-[#787B7C] text-sm">Create your first mine to get started</p>
+        </div>
+      </Transition>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -81,7 +117,13 @@ import { h, resolveComponent } from "vue";
 import { address, assertIsAddress } from "@solana/addresses";
 
 import Arrow from "~/assets/svg/arrow.svg";
-import Pickaxe from "~/assets/svg/pickaxe.svg";
+import SearchIcon from "~/assets/svg/search.svg";
+import SortingIcon from "~/assets/svg/sorting_icon.svg";
+import MineCard from "~/components/Mines/MineCard.vue";
+import MineCardSkeleton from "~/components/Mines/MineCardSkeleton.vue";
+import TokenHeaderSkeleton from "~/components/Mines/TokenHeaderSkeleton.vue";
+import SearchSortSkeleton from "~/components/Mines/SearchSortSkeleton.vue";
+import CreateMineButton from "~/components/Mines/CreateMineButton.vue";
 
 const route = useRoute();
 const { tokenAddress } = route.params;
@@ -143,11 +185,70 @@ const {
 // );
 const { pools: decodedPools, loading } = usePools(tokenAddress as string);
 
-const router = useRouter();
+// Search and Sort
+const searchQuery = ref("");
+const sortBy = ref<"liquidity" | "volume" | "apr" | null>(null);
+const sortOrder = ref<"asc" | "desc">("desc");
 
-function openCreateMineModal() {
-  router.push({ query: { ...route.query, modal: "createMine" } });
+const sortOptions = [
+  { key: "liquidity" as const, label: "Liquidity" },
+  { key: "volume" as const, label: "Volume" },
+  { key: "apr" as const, label: "APR" },
+];
+
+function setSortBy(key: "liquidity" | "volume" | "apr") {
+  if (sortBy.value === key) {
+    // Если кнопка уже активна, отключаем её
+    sortBy.value = null;
+    sortOrder.value = "desc";
+  } else {
+    sortBy.value = key;
+    sortOrder.value = "desc";
+  }
 }
+
+const filteredAndSortedPools = computed(() => {
+  if (!decodedPools.value) return [];
+
+  let filtered = decodedPools.value;
+
+  // Filter by search query
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim();
+    filtered = filtered.filter((pool) => {
+      const poolAddress = pool.pubkey.toLowerCase();
+      return poolAddress.includes(query);
+    });
+  }
+
+  // Sort
+  let sorted = [...filtered];
+  
+  if (sortBy.value) {
+    sorted = sorted.sort((a, b) => {
+      let aValue = 0;
+      let bValue = 0;
+
+      if (sortBy.value === "liquidity") {
+        aValue = Number(a.pool.totalPoolTokens) / 10 ** token.value!.decimals;
+        bValue = Number(b.pool.totalPoolTokens) / 10 ** token.value!.decimals;
+      } else if (sortBy.value === "volume") {
+        // Mock volume data - replace with actual volume when available
+        aValue = 36200;
+        bValue = 36200;
+      } else if (sortBy.value === "apr") {
+        // Mock APR data - replace with actual APR when available
+        aValue = 80.2;
+        bValue = 80.2;
+      }
+
+      return sortOrder.value === "asc" ? aValue - bValue : bValue - aValue;
+    });
+  }
+
+  return sorted;
+});
+
 // interface TablePool extends Pool {
 //   pubkey: string;
 // }
@@ -190,3 +291,15 @@ function openCreateMineModal() {
 //   },
 // ];
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

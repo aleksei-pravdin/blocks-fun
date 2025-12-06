@@ -13,3 +13,9 @@
   width: auto !important;
   padding: 0 !important;
 }
+
+/* Global class to disable fill for SVG icons */
+.icon-no-fill,
+.icon-no-fill * {
+  fill: unset !important;
+}

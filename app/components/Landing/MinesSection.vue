@@ -19,40 +19,11 @@
 
       <!-- Mines Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <LandingMineCard 
-          :mine="{
-            name: 'Bonk Mine',
-            feeTier: 2,
-            maxWin: 60,
-            apr: 38.2,
-            liquidity: 87900,
-            volume24h: 22000,
-            hotInfo: 'This is hot mine, 22 bets in the past hour!'
-          }"
-        />
-        <LandingMineCard 
-          :mine="{
-            name: 'SOL Mine',
-            feeTier: 2.5,
-            maxWin: 30,
-            apr: 80.2,
-            liquidity: 67900,
-            volume24h: 36200,
-            hotInfo: 'This is hot mine, 902 bets in the past hour!',
-            trending: true
-          }"
-        />
-        <LandingMineCard 
-          :mine="{
-            name: 'WIF Mine',
-            feeTier: 1.5,
-            maxWin: 90,
-            apr: 80.3,
-            liquidity: 220000,
-            volume24h: 2000,
-            hotInfo: 'This is hot mine, 90 bets in the past hour!',
-            featured: true
-          }"
+        <MineCard
+          v-for="mockMine in mockMines"
+          :key="mockMine.pool.pubkey"
+          :pool="mockMine.pool"
+          :token="mockMine.token"
         />
       </div>
     </div>
@@ -61,5 +32,73 @@
 
 <script setup lang="ts">
 import Arrow from "~/assets/svg/arrow.svg";
+import type { Pool } from "~/lib/pools";
+import MineCard from "~/components/Mines/MineCard.vue";
+
+const mockMines = [
+{
+    pool: {
+      pubkey: "mock-pubkey-2",
+      pool: {
+        tokenMint: "So11111111111111111111111111111111111111112" as any,
+        liquidityMint: "So11111111111111111111111111111111111111112" as any,
+        totalLiquiditySupply: 0n,
+        totalPoolTokens: 679000000000n, // 67900 with 9 decimals
+        lockedLiquidity: 0n,
+        platformFee: 0n,
+        houseEdge: 250, // 2.5%
+        maxWinLiqThreshold: 3000, // 30%
+        bump: 0,
+      } as Pool,
+    },
+    token: {
+      symbol: "SOL",
+      image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+      decimals: 9,
+    },
+  },
+  {
+    pool: {
+      pubkey: "mock-pubkey-2",
+      pool: {
+        tokenMint: "So11111111111111111111111111111111111111112" as any,
+        liquidityMint: "So11111111111111111111111111111111111111112" as any,
+        totalLiquiditySupply: 0n,
+        totalPoolTokens: 679000000000n, // 67900 with 9 decimals
+        lockedLiquidity: 0n,
+        platformFee: 0n,
+        houseEdge: 250, // 2.5%
+        maxWinLiqThreshold: 3000, // 30%
+        bump: 0,
+      } as Pool,
+    },
+    token: {
+      symbol: "SOL",
+      image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+      decimals: 9,
+    },
+  },
+  {
+    pool: {
+      pubkey: "mock-pubkey-2",
+      pool: {
+        tokenMint: "So11111111111111111111111111111111111111112" as any,
+        liquidityMint: "So11111111111111111111111111111111111111112" as any,
+        totalLiquiditySupply: 0n,
+        totalPoolTokens: 679000000000n, // 67900 with 9 decimals
+        lockedLiquidity: 0n,
+        platformFee: 0n,
+        houseEdge: 250, // 2.5%
+        maxWinLiqThreshold: 3000, // 30%
+        bump: 0,
+      } as Pool,
+    },
+    token: {
+      symbol: "SOL",
+      image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+      decimals: 9,
+    },
+  },
+];
 </script>
 
