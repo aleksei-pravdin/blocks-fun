@@ -510,7 +510,7 @@ async function onMineSubmit() {
 
     const signature = await sendTransaction(transaction, getSolanaConnection());
 
-    router.push({ query: { modal: "bet", signature, vrf: vrfPda.toString() } });
+    router.push({ query: { modal: "bet", signature, vrf: vrfPda.toString(), mineAddress: props.mineAddress } });
 
     toast.add({
       title: "Bet sent 🎲",

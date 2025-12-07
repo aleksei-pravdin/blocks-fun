@@ -35,7 +35,7 @@
               ]"
               :style="{ '--max-width': maxWidth }"
             >
-              <div class="relative bg-[#222328] pt-3 pb-6 sm:px-5 sm:pt-3 sm:pb-8 overflow-hidden">
+              <div class="relative bg-[#222328] pt-3 pb-6 sm:px-5 sm:pt-3 sm:pb-8 overflow-hidden" :class="props.class">
                 <!-- Background image -->
                 <HeaderCardBg />
                 
@@ -66,6 +66,7 @@ import {
 interface Props {
   open: boolean;
   maxWidth?: string;
+  class?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {

@@ -5,6 +5,8 @@
 
       <AppHeader />
 
+      <LiveFeed />
+
       <UMain class="flex-1 flex flex-col">
         <NuxtLayout class="flex-1 flex flex-col">
           <NuxtPage class="flex-1 pb-[200px]" />
@@ -34,5 +36,7 @@
 </template>
 
 <script lang="ts" setup>
+import LiveFeed from "~/components/Mines/LiveFeed.vue";
+
 const route = useRoute();
 </script>

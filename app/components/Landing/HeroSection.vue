@@ -31,7 +31,10 @@
 
         <!-- CTA Buttons -->
         <div class="flex items-center justify-center gap-4 mt-12">
-          <button class="group relative text-white px-6 py-2.5 font-bold text-sm uppercase hover:opacity-90 transition-opacity overflow-hidden">
+          <NuxtLink 
+            to="/mines"
+            class="group relative text-white px-6 py-2.5 font-bold text-sm uppercase hover:opacity-90 transition-opacity overflow-hidden"
+          >
             <ClippedCornerSvg
               :width="200"
               :height="48"
@@ -51,9 +54,12 @@
               START PLAYING THE GAME
               <ArrowOpen class="w-3 h-3" />
             </span>
-          </button>
+          </NuxtLink>
 
-          <button class="group relative text-[#0F0F11] px-6 py-2.5 font-bold text-sm uppercase hover:opacity-90 transition-opacity overflow-hidden">
+          <NuxtLink 
+            to="/leaderboard"
+            class="group relative text-[#0F0F11] px-6 py-2.5 font-bold text-sm uppercase hover:opacity-90 transition-opacity overflow-hidden"
+          >
             <ClippedCornerSvg
               :width="200"
               :height="48"
@@ -73,7 +79,7 @@
               VIEW LEADERBOARD
               <ArrowOpen class="w-3 h-3" />
             </span>
-          </button>
+          </NuxtLink>
         </div>
 
         <!-- Safety info -->

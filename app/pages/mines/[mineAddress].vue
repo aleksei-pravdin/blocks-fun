@@ -9,7 +9,6 @@ import { useTokenInfoQuery } from "~/composables/useTokenInfoQuery";
 import PlayForm from "~/components/Mines/PlayForm.vue";
 import HeaderCardBg from "~/components/HeaderCardBg.vue";
 import VolumeChart from "~/components/Charts/VolumeChart.vue";
-import LiveFeed from "~/components/Mines/LiveFeed.vue";
 import MineStatsRow from "~/components/Mines/MineStatsRow.vue";
 import LiquiditySection from "~/components/Mines/LiquiditySection.vue";
 import YourPositionDetails from "~/components/Mines/YourPositionDetails.vue";
@@ -146,9 +145,6 @@ function refetchAll() {
 
 <template>
   <div class="w-full bg-[#0C100F] min-h-screen">
-    <!-- Live Feed -->
-    <LiveFeed />
-
     <div v-if="loading" class="max-w-[1728px] w-full mx-auto px-[60px] py-8">
       <div class="text-white">Loading…</div>
     </div>

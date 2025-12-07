@@ -74,11 +74,11 @@ const openInExplorer = (base58?: string | null) => {
     </NuxtLink>
 
     <!-- Navigation Menu -->
-    <div class="absolute left-[297px] top-1/2 -translate-y-1/2 flex items-center gap-[50px]">
+    <div class="absolute left-[297px] top-0 bottom-0 flex items-center">
       <NuxtLink 
         to="/" 
         :class="[
-          'uppercase font-semibold text-base leading-[1.3] tracking-[0.1em] transition-colors relative pb-1',
+          'h-full flex items-center justify-center px-7 uppercase font-semibold text-base leading-[1.3] tracking-[0.1em] transition-colors relative',
           route.path === '/' ? 'text-white' : 'text-[#535667]'
         ]"
         style="font-family: 'Chakra Petch', sans-serif;"
@@ -87,13 +87,13 @@ const openInExplorer = (base58?: string | null) => {
         <span 
           v-if="route.path === '/'"
           class="absolute h-[3px] bg-[#FF4B01]"
-          style="bottom: -32px; left: -25%; width: 150%; box-shadow: 0 0 8px rgba(255, 75, 1, 0.6);"
+          style="bottom: 0; left: 0; right: 0; box-shadow: 0 0 8px rgba(255, 75, 1, 0.6);"
         ></span>
       </NuxtLink>
       <NuxtLink 
         to="/mines" 
         :class="[
-          'uppercase font-semibold text-base leading-[1.3] tracking-[0.1em] transition-colors relative pb-1',
+          'h-full flex items-center justify-center px-7 uppercase font-semibold text-base leading-[1.3] tracking-[0.1em] transition-colors relative',
           route.path.startsWith('/mines') ? 'text-white' : 'text-[#535667]'
         ]"
         style="font-family: 'Chakra Petch', sans-serif;"
@@ -102,13 +102,13 @@ const openInExplorer = (base58?: string | null) => {
         <span 
           v-if="route.path.startsWith('/mines')"
           class="absolute h-[3px] bg-[#FF4B01]"
-          style="bottom: -32px; left: -25%; width: 150%; box-shadow: 0 0 8px rgba(255, 75, 1, 0.6);"
+          style="bottom: 0; left: 0; right: 0; box-shadow: 0 0 8px rgba(255, 75, 1, 0.6);"
         ></span>
       </NuxtLink>
       <NuxtLink 
         to="/stats" 
         :class="[
-          'uppercase font-semibold text-base leading-[1.3] tracking-[0.1em] transition-colors relative pb-1',
+          'h-full flex items-center justify-center px-7 uppercase font-semibold text-base leading-[1.3] tracking-[0.1em] transition-colors relative',
           route.path.startsWith('/stats') ? 'text-white' : 'text-[#535667]'
         ]"
         style="font-family: 'Chakra Petch', sans-serif;"
@@ -117,13 +117,13 @@ const openInExplorer = (base58?: string | null) => {
         <span 
           v-if="route.path.startsWith('/stats')"
           class="absolute h-[3px] bg-[#FF4B01]"
-          style="bottom: -32px; left: -25%; width: 150%; box-shadow: 0 0 8px rgba(255, 75, 1, 0.6);"
+          style="bottom: 0; left: 0; right: 0; box-shadow: 0 0 8px rgba(255, 75, 1, 0.6);"
         ></span>
       </NuxtLink>
       <NuxtLink 
         to="/leaderboard" 
         :class="[
-          'uppercase font-semibold text-base leading-[1.3] tracking-[0.1em] transition-colors relative pb-1',
+          'h-full flex items-center justify-center px-7 uppercase font-semibold text-base leading-[1.3] tracking-[0.1em] transition-colors relative',
           route.path.startsWith('/leaderboard') ? 'text-white' : 'text-[#535667]'
         ]"
         style="font-family: 'Chakra Petch', sans-serif;"
@@ -132,7 +132,7 @@ const openInExplorer = (base58?: string | null) => {
         <span 
           v-if="route.path.startsWith('/leaderboard')"
           class="absolute h-[3px] bg-[#FF4B01]"
-          style="bottom: -32px; left: -25%; width: 150%; box-shadow: 0 0 8px rgba(255, 75, 1, 0.6);"
+          style="bottom: 0; left: 0; right: 0; box-shadow: 0 0 8px rgba(255, 75, 1, 0.6);"
         ></span>
       </NuxtLink>
     </div>
