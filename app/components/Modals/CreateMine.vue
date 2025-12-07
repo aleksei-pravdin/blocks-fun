@@ -177,6 +177,52 @@
           </div>
         </div>
 
+        <!-- Initial Liquidity -->
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between">
+            <label class="font-raj font-bold text-base text-[#E5E9EC]">
+              Amount
+            </label>
+            <span v-if="selectedToken && !balanceLoading" class="text-[#E5E9EC] font-raj font-bold text-base">
+              Your Balance {{ Math.round(balanceTokens) }} {{ selectedToken.symbol }}
+            </span>
+          </div>
+          <div class="relative">
+            <input
+              v-model.number="state.initialLiquidity"
+              type="number"
+              inputmode="decimal"
+              step="0.00000001"
+              min="0"
+              :max="balanceTokens || undefined"
+              placeholder="0.00"
+              class="w-full rounded-[10px] border-2 border-[rgba(83,86,103,0.57)] h-[42px] px-[14px] text-white font-bold text-base outline-none placeholder:text-[#6B6D7A] placeholder:text-sm bg-transparent"
+            />
+            <div class="absolute inset-y-0 right-0 flex items-center gap-[10px] pr-[14px]">
+              <button
+                type="button"
+                @click="setHalfAmount"
+                class="w-[80px] h-6 rounded-[6px] bg-[rgba(83,86,103,0.48)] text-[#9497A4] font-chakra font-bold text-base flex items-center justify-center hover:opacity-90"
+              >
+                Half
+              </button>
+              <button
+                type="button"
+                @click="setMaxAmount"
+                class="w-[80px] h-6 rounded-[6px] bg-[#FF4B01] text-[#F9F9FB] font-chakra font-bold text-base flex items-center justify-center hover:opacity-90"
+              >
+                Max
+              </button>
+              <img
+                v-if="selectedToken?.image"
+                class="w-6 h-6 rounded-full"
+                :src="selectedToken.image"
+                :alt="selectedToken.symbol || 'Token'"
+              />
+            </div>
+          </div>
+        </div>
+
         <!-- Summary -->
         <div class="flex flex-col gap-2 pt-1 border-t border-[rgba(58,60,70,0.37)]">
           <label class="font-raj font-bold text-base text-[#E5E9EC]">
@@ -260,6 +306,8 @@ import ClippedCornerSvg from "~/components/ClippedCornerSvg.vue";
 import AlertSquareIcon from "~/assets/svg/alert-square.svg";
 import BaseModal from "~/components/Modals/BaseModal.vue";
 import ModalHeader from "~/components/Modals/ModalHeader.vue";
+import { getUseTokenBalanceQuery } from "~/composables/useTokenBalanceQuery";
+import { useTokenInfoQuery } from "~/composables/useTokenInfoQuery";
 
 const router = useRouter();
 const route = useRoute();
@@ -302,6 +350,7 @@ const state = reactive({
   tokenAddress: getTokenAddressFromUrl(),
   houseEdge: "2", // Default to 2%
   maxWinPercent: 36,
+  initialLiquidity: 0,
 });
 
 // Watch for route changes to update token address
@@ -319,6 +368,40 @@ watch(
 const selectedToken = computed(() => {
   return availableTokens.find((t) => t.address === state.tokenAddress);
 });
+
+// Get token info and balance
+const tokenMint = computed(() => state.tokenAddress || null);
+
+const {
+  balance,
+  isLoading: balanceLoading,
+  isError: balanceError,
+  refetch: refetchBalance,
+} = getUseTokenBalanceQuery(tokenMint);
+
+const {
+  token,
+  isLoading: tokenLoading,
+  isError: tokenError,
+  refetch: refetchToken,
+} = useTokenInfoQuery(tokenMint);
+
+const balanceTokens = computed(() => {
+  if (!balance.value || !token.value) return 0;
+  return Number(balance.value) / 10 ** token.value.decimals;
+});
+
+function setHalfAmount() {
+  if (balanceTokens.value > 0) {
+    state.initialLiquidity = balanceTokens.value / 2;
+  }
+}
+
+function setMaxAmount() {
+  if (balanceTokens.value > 0) {
+    state.initialLiquidity = balanceTokens.value;
+  }
+}
 
 const toast = useToast();
 const { publicKey, sendTransaction } = useWallet();
@@ -355,12 +438,22 @@ async function onSubmit() {
 
     submitting.value = true;
 
-    // For now, we'll use 0 as initial amount since it's not in the design
-    // This might need to be adjusted based on backend requirements
+    if (!token.value) {
+      toast.add({
+        title: "Validation Error",
+        description: "Token information not loaded.",
+        color: "error",
+      });
+      return;
+    }
+
+    const initialAmount = state.initialLiquidity || 0;
+    const initialAmountBigInt = BigInt(Math.floor(initialAmount * 10 ** token.value.decimals));
+
     const [transaction, poolPda] = await buildCreatePoolTransaction(
       publicKey.value,
       new PublicKey(state.tokenAddress),
-      BigInt(0),
+      initialAmountBigInt,
       Math.round(houseEdgePercent * 100),
       Math.round(maxWinPercent * 100)
     );
@@ -377,6 +470,7 @@ async function onSubmit() {
     state.tokenAddress = "";
     state.houseEdge = "2";
     state.maxWinPercent = 36;
+    state.initialLiquidity = 0;
     closeModal();
   } catch (e: any) {
     console.error(e);
