@@ -22,6 +22,9 @@
   <ModalsAddLiquidity
     v-if="route.query.modal === 'add-liquidity' && route.query.mineAddress"
   />
+  <ModalsRemoveLiquidity
+    v-if="route.query.modal === 'remove-liquidity' && route.query.mineAddress"
+  />
   <ModalsCreateMine
     v-if="route.query.modal === 'createMine'"
   />

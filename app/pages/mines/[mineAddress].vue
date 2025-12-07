@@ -285,7 +285,7 @@ function refetchAll() {
             :format-number-no-decimals="formatNumberNoDecimals"
             :format-number="formatNumber"
             :add-liquidity-disabled="false"
-            :remove-liquidity-disabled="Number(userLiquidityShare) === 0"
+            :remove-liquidity-disabled="false"
             @update:time-filter="liquidityTimeFilter = $event"
             @open-modal="openModal"
           />

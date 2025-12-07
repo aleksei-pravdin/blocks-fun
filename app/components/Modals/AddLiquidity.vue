@@ -34,7 +34,7 @@
               min="0"
               :max="balanceTokens || undefined"
               placeholder="0.00"
-              class="w-full rounded-[10px] border-2 border-[rgba(83,86,103,0.57)] h-[42px] px-[14px] text-white font-bold text-base outline-none placeholder:text-[#6B6D7A] placeholder:text-sm bg-[#535667]"
+              class="w-full rounded-[10px] border-2 border-[rgba(83,86,103,0.57)] h-[42px] px-[14px] text-white font-bold text-base outline-none placeholder:text-[#6B6D7A] placeholder:text-sm bg-transparent"
             />
             <div class="absolute inset-y-0 right-0 flex items-center gap-[10px] pr-[14px]">
               <button
