@@ -1,6 +1,7 @@
 // ~/lib/solanaPools.ts
 import { createSolanaRpc } from "@solana/rpc";
-import { type Address, address, getAddressDecoder } from "@solana/addresses";
+import { type Address, address, getAddressDecoder, getAddressEncoder } from "@solana/addresses";
+import { PublicKey } from "@solana/web3.js";
 
 import { getStructDecoder } from "@solana/codecs-data-structures";
 import { type FixedSizeDecoder } from "@solana/codecs-core";
@@ -72,25 +73,62 @@ const base64Encoder = getBase64Encoder();
 async function decodeAccounts(accounts: any[]) {
   const decoded: { pubkey: string; pool: Pool }[] = [];
 
-  for (const { pubkey, account } of accounts) {
-    const pool = decodePool(account.data);
-    if (!pool) continue;
+  for (const accountItem of accounts) {
+    try {
+      // Handle different possible structures
+      const pubkey = accountItem.pubkey || accountItem.accountId || accountItem[0];
+      const account = accountItem.account || accountItem[1] || accountItem;
+      
+      if (!account || !account.data) {
+        continue;
+      }
 
-    decoded.push({ pubkey, pool });
+      const pool = decodePool(account.data);
+      if (!pool) {
+        continue;
+      }
+
+      decoded.push({ pubkey: String(pubkey), pool });
+    } catch (e) {
+      console.error("Error decoding account:", e);
+    }
   }
 
   return decoded;
 }
 
-function decodePool(accountData: [string, string]): Pool | null {
-  const [data, encoding] = accountData;
-  if (encoding !== "base64") {
+function decodePool(accountData: [string, string] | any): Pool | null {
+  try {
+    // Handle different possible structures
+    let data: string;
+    let encoding: string;
+    
+    if (Array.isArray(accountData)) {
+      [data, encoding] = accountData;
+    } else if (accountData && typeof accountData === 'object') {
+      // Handle object structure like { data: [...], encoding: "base64" }
+      if (Array.isArray(accountData.data)) {
+        [data, encoding] = accountData.data;
+      } else {
+        data = accountData.data;
+        encoding = accountData.encoding || "base64";
+      }
+    } else {
+      return null;
+    }
+    
+    if (encoding !== "base64" || !data) {
+      return null;
+    }
+    
+    const bytes = base64Encoder.encode(data);
+    const pool = poolDecoder.decode(bytes);
+    
+    return pool;
+  } catch (e) {
+    console.error("decodePool: error decoding pool:", e);
     return null;
   }
-  const bytes = base64Encoder.encode(data);
-  const pool = poolDecoder.decode(bytes);
-
-  return pool;
 }
 
 export async function fetchPool(poolAddress: string) {
@@ -117,20 +155,19 @@ export async function fetchAllPools() {
 
 // Fetch pools for a specific token mint (filter on tokenMint at offset 0)
 export async function fetchPoolsByTokenMint(tokenMint: string) {
-  const accounts = await rpc
+  // Always fetch all pools and filter in code, as memcmp filter may not work correctly
+  // for all token addresses (especially native SOL)
+  const allAccounts = await rpc
     .getProgramAccounts(PROGRAM_ID, {
       encoding: "base64",
-      filters: [
-        { dataSize: POOL_ACCOUNT_SIZE },
-        {
-          memcmp: {
-            offset: 0n, // tokenMint field
-            bytes: tokenMint,
-          },
-        },
-      ],
+      filters: [{ dataSize: POOL_ACCOUNT_SIZE }],
     })
     .send();
-
-  return decodeAccounts(accounts);
+  
+  const allPools = await decodeAccounts(allAccounts);
+  
+  // Filter pools by tokenMint
+  const filtered = allPools.filter(p => p.pool.tokenMint === tokenMint);
+  
+  return filtered;
 }

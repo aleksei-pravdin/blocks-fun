@@ -1,6 +1,6 @@
 <template>
   <footer
-    class="w-full bg-[#131817] mt-20 pt-9 pb-10 border-t border-[#151820]"
+    class="w-full bg-[#131817] pt-9 pb-10 border-t border-[#151820]"
   >
     <!-- Floating happy coin -->
     

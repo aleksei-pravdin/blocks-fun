@@ -4,14 +4,13 @@
       <NuxtRouteAnnouncer />
 
       <AppHeader />
-      <!-- <AppLiveGames /> -->
 
       <UMain class="flex-1 flex flex-col">
-        <NuxtLayout>
-          <NuxtPage />
+        <NuxtLayout class="flex-1 flex flex-col">
+          <NuxtPage class="flex-1 pb-[200px]" />
         </NuxtLayout>
 
-        <AppFooter />
+        <AppFooter class="mt-auto" />
       </UMain>
     </UApp>
   </div>
@@ -21,7 +20,7 @@
     "
   />
   <ModalsAddLiquidity
-    v-if="route.query.modal === 'addLiquidity' && route.query.mineAddress"
+    v-if="route.query.modal === 'add-liquidity' && route.query.mineAddress"
   />
   <ModalsCreateMine
     v-if="route.query.modal === 'createMine'"

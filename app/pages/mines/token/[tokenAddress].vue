@@ -1,5 +1,6 @@
 <template>
-  <div class="max-w-[1380px] w-full mx-auto pt-15">
+  <div class="max-w-[1382px] w-full mx-auto pt-15 px-4">
+
     <!-- Loading state for token -->
     <Transition name="fade" mode="out-in">
       <div v-if="tokenLoading" key="loading">
@@ -21,26 +22,36 @@
         </button>
       </div>
 
-      <!-- Main content -->
-      <div v-else-if="token" key="content">
-      <div class="flex justify-between items-center">
-        <div class="flex gap-7">
-          <img class="size-24 rounded-full" :src="token?.image" />
-
-          <div class="flex flex-col">
-            <div class="flex gap-1.5 uppercase font-raj text-xl font-semibold">
-              <Arrow :filled="true" />
-              Mines
-            </div>
-
-            <span class="font-black text-5xl">{{ token.symbol }}</span>
-          </div>
-        </div>
-
-        <CreateMineButton variant="clipped" />
+      <!-- Invalid token address -->
+      <div v-else-if="!token && !tokenLoading" key="invalid" class="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p class="text-red-400 font-raj font-semibold text-lg">Invalid token address</p>
+        <p class="text-[#787B7C] text-sm">The token address "{{ tokenAddress }}" is not valid or not found.</p>
+        <NuxtLink
+          to="/mines"
+          class="bg-[#535667] text-white px-6 py-2 rounded-lg font-bold uppercase hover:opacity-90 transition-opacity"
+        >
+          Back to Tokens
+        </NuxtLink>
       </div>
 
-      <div class="h-[3px] w-full bg-[#1E1E1E] mt-5 mb-7"></div>
+      <!-- Main content -->
+      <div v-else-if="token" key="content">
+      <PageHeader
+        :title="token.symbol"
+        badge="Mines"
+        :badge-icon="Arrow"
+        :badge-icon-filled="true"
+        :image="token?.image || ''"
+        :image-alt="token.symbol"
+        title-size="medium"
+        divider-color="#1E1E1E"
+        divider-height="h-[3px]"
+        divider-margin-bottom="mb-7"
+      >
+        <template #actions>
+          <CreateMineButton variant="clipped" />
+        </template>
+      </PageHeader>
 
       <!-- Search and Sort -->
       <SearchSortSkeleton v-if="loading" />
@@ -124,16 +135,61 @@ import MineCardSkeleton from "~/components/Mines/MineCardSkeleton.vue";
 import TokenHeaderSkeleton from "~/components/Mines/TokenHeaderSkeleton.vue";
 import SearchSortSkeleton from "~/components/Mines/SearchSortSkeleton.vue";
 import CreateMineButton from "~/components/Mines/CreateMineButton.vue";
+import PageHeader from "~/components/PageHeader.vue";
 
 const route = useRoute();
-const { tokenAddress } = route.params;
+const { tokenAddress: tokenAddressParam } = route.params;
+
+// Ensure tokenAddress is a string (route.params can be string | string[])
+const tokenAddress = computed(() => {
+  const addr = tokenAddressParam;
+  const result = Array.isArray(addr) ? addr[0] : addr;
+  return result || null;
+});
+
+// Fallback token data from the assets list (same as on /mines page)
+const fallbackTokens = [
+  {
+    symbol: "SOL",
+    image:
+      "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+    address: "So11111111111111111111111111111111111111112",
+    decimals: 9,
+  },
+  {
+    symbol: "USDC",
+    image:
+      "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
+    address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    decimals: 6,
+  },
+];
 
 const {
-  token,
+  token: fetchedToken,
   isLoading: tokenLoading,
   isError: tokenError,
   refetch: refetchToken,
 } = useTokenInfoQuery(tokenAddress);
+
+// Use fetched token or fallback to known token data
+const token = computed(() => {
+  if (fetchedToken.value) {
+    return fetchedToken.value;
+  }
+  // Fallback to known token data if fetch failed
+  const fallback = fallbackTokens.find((t) => t.address === tokenAddress.value);
+  if (fallback) {
+    return {
+      symbol: fallback.symbol,
+      image: fallback.image,
+      decimals: fallback.decimals,
+      name: fallback.symbol,
+      pricePerToken: null,
+    };
+  }
+  return null;
+});
 
 // const ULink = resolveComponent("ULink");
 
@@ -183,7 +239,7 @@ const {
 //     }
 //   )
 // );
-const { pools: decodedPools, loading } = usePools(tokenAddress as string);
+const { pools: decodedPools, loading } = usePools(tokenAddress);
 
 // Search and Sort
 const searchQuery = ref("");

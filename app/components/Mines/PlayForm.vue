@@ -1,116 +1,192 @@
 <template>
-  <div class="flex flex-col gap-4.5">
-    <h2 class="uppercase font-bold text-2xl font-raj">Play</h2>
-    <div class="w-full h-0.75 bg-[#1E1E1E]"></div>
-  </div>
+  <div class="flex flex-col">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-1">
+      <h2 class="text-[#E5E9EC] font-raj font-bold text-[22px] uppercase">PLAY</h2>
+    </div>
+    <div class="h-[3px] w-full bg-[#1E1E1E] mb-4"></div>
 
-  <!-- MAIN FORM -->
-  <form class="flex flex-col gap-11" @submit.prevent="onMineSubmit">
-    <!-- BET AMOUNT -->
-    <div class="flex flex-col gap-2.5">
-      <div class="flex justify-between font-raj font-bold">
-        <span>Bet Amount</span>
-        <span v-if="!balanceLoading && !tokenLoading">
-          Your Balance
-          {{ balanceTokens.toFixed(2) }}
-          {{ token?.symbol }}
-        </span>
-      </div>
+    <!-- MAIN FORM -->
+    <form class="flex flex-col" @submit.prevent="onMineSubmit">
+      <!-- BET AMOUNT -->
+      <div class="flex flex-col gap-1">
+        <div class="flex justify-between items-center">
+          <span class="text-[#E5E9EC] font-raj font-bold text-base">Bet Amount</span>
+          <span v-if="!balanceLoading && !tokenLoading" class="text-[#E5E9EC] font-raj font-bold text-base">
+            Your Balance {{ Math.round(balanceTokens) }} {{ token?.symbol }}
+          </span>
+        </div>
 
-      <div class="relative">
-        <input
-          class="w-full rounded-lg border-2 border-[rgba(83,86,103,0.57)] h-10.5 px-3.5 bg-transparent outline-none"
-          type="number"
-          inputmode="decimal"
-          step="0.00000001"
-          min="0"
-          :max="balanceTokens || undefined"
-          placeholder="0"
-          v-model="betInput"
-        />
+        <div class="relative">
+          <input
+            class="w-full rounded-[10px] border-2 border-[rgba(83,86,103,0.57)] h-[42px] px-[14px] text-[#9497A4] font-bold text-base outline-none placeholder:text-[#6B6D7A] placeholder:text-sm"
+            type="number"
+            inputmode="decimal"
+            step="0.00000001"
+            min="0"
+            :max="balanceTokens || undefined"
+            placeholder="8000"
+            v-model="betInput"
+          />
 
-        <div class="absolute inset-y-0 right-0 flex items-center pr-2">
-          <button
-            type="button"
-            class="bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            @click="setHalfBet"
-          >
-            Half
-          </button>
-          <button
-            type="button"
-            class="bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 ml-1"
-            @click="setMaxBet"
-          >
-            Max
-          </button>
+          <div class="absolute inset-y-0 right-0 flex items-center gap-[10px] pr-[14px]">
+            <button
+              type="button"
+              @click="setHalfBet"
+              class="w-[80px] h-6 rounded-[6px] bg-[rgba(83,86,103,0.48)] text-[#9497A4] font-chakra font-bold text-base flex items-center justify-center hover:opacity-90"
+            >
+              Half
+            </button>
+            <button
+              type="button"
+              @click="setMaxBet"
+              class="w-[80px] h-6 rounded-[6px] bg-[#FF4B01] text-[#F9F9FB] font-chakra font-bold text-base flex items-center justify-center hover:opacity-90"
+            >
+              Max
+            </button>
+            <img
+              v-if="token?.image"
+              class="w-6 h-6 rounded-full"
+              :src="token.image"
+              :alt="token.symbol || 'Token'"
+            />
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- DESIRED WIN (PROFIT) -->
-    <div class="flex flex-col gap-2.5">
-      <div class="flex justify-between font-raj font-bold">
-        <span>Desired Win</span>
-        <span>Max {{ maxWinTokens }} BONK</span>
+      <!-- DESIRED PAYOUT -->
+      <div class="flex flex-col gap-1 mt-10">
+        <div class="flex justify-between items-center">
+          <span class="text-[#E5E9EC] font-raj font-bold text-base">Desired Payout</span>
+          <span class="text-[#E5E9EC] font-raj font-bold text-base">MAX {{ formatMaxWinTokens }} {{ token?.symbol }}</span>
+        </div>
+
+        <div class="relative">
+          <input
+            :class="[
+              'w-full rounded-[10px] border-2 h-[42px] px-[14px] font-chakra font-bold text-base outline-none placeholder:text-sm',
+              desiredPayoutInputClass
+            ]"
+            type="number"
+            inputmode="decimal"
+            step="0.00000001"
+            min="0"
+            :max="maxWinTokensNumber || undefined"
+            placeholder="200,000"
+            v-model="desiredWinInput"
+          />
+          <div class="absolute inset-y-0 right-0 flex items-center pr-[14px]">
+            <img
+              v-if="token?.image"
+              class="w-6 h-6 rounded-full"
+              :src="token.image"
+              :alt="token.symbol || 'Token'"
+            />
+          </div>
+        </div>
       </div>
 
-      <input
-        class="w-full rounded-lg border-2 border-[rgba(83,86,103,0.57)] h-10.5 px-3.5 bg-transparent outline-none"
-        type="number"
-        inputmode="decimal"
-        step="0.00000001"
-        min="0"
-        :max="maxWinTokensNumber || undefined"
-        placeholder="0"
-        v-model="desiredWinInput"
-      />
-    </div>
+      <!-- PAYOUT MULTIPLIER -->
+      <div class="flex flex-col mt-3">
+        <div class="flex justify-between items-center">
+          <span class="text-[#E5E9EC] font-raj font-bold text-base">Payout Multiplier</span>
+          <span class="text-[#E5E9EC] font-raj font-bold text-base">
+            {{ sliderMultiplier.toFixed(2) }}x
+          </span>
+        </div>
+        <!-- Slider -->
+        <div class="relative w-full h-[10px] ">
+          <!-- Background track -->
+          <div class="absolute top-1/2 left-0 right-0 h-[6px] -translate-y-1/2 bg-[#3A3C46] rounded-[2px]"></div>
+          <!-- Filled track -->
+          <div
+            class="absolute top-1/2 left-0 h-[6px] -translate-y-1/2 bg-[#FF4B01] rounded-[2px]"
+            :style="{ width: `${((sliderMultiplier - minMultiplier) / (maxMultiplier - minMultiplier)) * 100}%` }"
+          ></div>
+          <!-- Slider input -->
+          <input
+            type="range"
+            :min="minMultiplier"
+            :max="maxMultiplier"
+            :step="0.01"
+            v-model.number="sliderMultiplier"
+            class="absolute inset-0 w-full h-[10px] appearance-none cursor-pointer slider z-10 bg-transparent"
+            @input="updateMultiplierFromSlider"
+          />
+        </div>
+      </div>
 
-    <!-- INFO BOXES -->
-    <div class="flex gap-5">
-      <div class="bg-[#2E3239] p-5 flex gap-4 items-center rounded-lg w-full">
-        <span class="font-raj font-semibold text-xl">Multiplier</span>
-        <span class="text-3xl font-bold">
-          {{ payoutMultiplier > 0 ? payoutMultiplier.toFixed(2) + "x" : "-" }}
+      <!-- INFO BOXES -->
+      <div class="flex gap-5 mt-12 mb-5">
+        <!-- Risk Level -->
+        <div class="bg-[#2E3239] rounded-[8px] px-5 py-4 flex items-center gap-[17px] flex-1">
+          <div class="flex gap-[17px]">
+            <div class="flex items-center gap-[6px]">
+              <span class="text-[#E5E9EC] font-raj font-semibold text-xl">Risk Level</span>
+              <div class="w-2 h-2 rounded-full bg-[#FFDD00]"></div>
+            </div>
+            <span class="text-[#FCF5F0] font-bold text-[28px] leading-[0.9] tracking-[-1.9px]">Medium</span>
+          </div>
+        </div>
+
+        <!-- Win Probability -->
+        <div class="bg-[#2E3239] rounded-[8px] px-5 py-4 flex items-center gap-[17px] flex-1">
+          <div class="flex  gap-[17px]">
+            <div class="flex items-center gap-[6px]">
+              <span class="text-[#E5E9EC] font-raj font-semibold text-xl">Win Probability</span>
+            </div>
+            <span class="text-[#FCF5F0] font-bold text-[28px] leading-[0.9] tracking-[-7%]">{{ winProbability }}</span>
+          </div>
+        </div>
+
+        <!-- Potential Profit -->
+        <div class="bg-[#2E3239] rounded-[8px] px-5 py-4 flex items-center gap-[17px] flex-1">
+          <div class="flex  gap-[17px]">
+            <div class="flex items-center gap-[6px]">
+              <span class="text-[#E5E9EC] font-raj font-semibold text-xl">Potential Profit</span>
+              <div class="w-2 h-2 rounded-full bg-[#88FF00]"></div>
+            </div>
+            <div class="flex items-center gap-[10px]">
+              <span class="text-[#FCF5F0]  font-bold text-[28px] leading-[0.9] tracking-[-7%]">{{ potentialProfit }}</span>
+              <img
+                v-if="token?.image"
+                class="w-6 h-6 rounded-full"
+                :src="token.image"
+                :alt="token.symbol || 'Token'"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="w-full relative h-[42px] rounded-md overflow-hidden disabled:opacity-50 cursor-pointer"
+        :disabled="submitting"
+      >
+        <ClippedCornerSvg
+          :width="1010"
+          :height="42"
+          fill-color="#E9E2DF"
+          :full-width="true"
+          :full-height="true"
+          border-radius="0"
+          class="absolute inset-0"
+        />
+        <span class="relative z-10 text-[#0C100F] font-chakra font-bold text-base uppercase">
+          {{ submitting ? "Sending Bet…" : "CONFIRM BET" }}
         </span>
-      </div>
-
-      <div class="bg-[#2E3239] p-5 flex justify-between rounded-lg w-full">
-        <span class="font-raj font-semibold text-xl">Win Probability</span>
-        <span class="text-3xl font-bold">{{ winProbability }}</span>
-      </div>
-
-      <div class="bg-[#2E3239] p-5 flex justify-between rounded-lg w-full">
-        <span class="font-raj font-semibold text-xl">Potential Profit</span>
-        <span class="text-3xl font-bold">{{ potentialProfit }}</span>
-      </div>
-    </div>
-
-    <button
-      type="submit"
-      class="w-full relative text-[#0C100F] py-2 font-medium disabled:opacity-50 uppercase cursor-pointer overflow-hidden"
-      :disabled="submitting"
-    >
-      <ClippedCornerSvg
-        :width="300"
-        :height="40"
-        fill-color="#E9E2DF"
-        :full-width="true"
-        :full-height="true"
-        border-radius="8px"
-        class="absolute inset-0"
-      />
-      <span class="relative z-10">{{ submitting ? "Sending Bet…" : "Confirm Bet" }}</span>
-    </button>
-  </form>
+      </button>
+    </form>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { useWallet } from "solana-wallets-vue";
-import type { Pool } from "~/lib/pools";
+import type { Pool } from "~/lib/solana/pools-schema";
 import { buildTryMineTransaction } from "~/lib/solana/pools";
 import { getSolanaConnection } from "~/lib/solana/rpc";
 import { useErrorModal } from "~/composables/useErrorModal";
@@ -178,6 +254,22 @@ const maxWinTokens = computed(() => {
 // numeric version for logic
 const maxWinTokensNumber = computed(() => Number(maxWinTokens.value) || 0);
 
+// Format max win tokens with commas
+const formatMaxWinTokens = computed(() => {
+  const num = Number(maxWinTokens.value) || 0;
+  return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+});
+
+// Format number with commas
+const formatNumber = (num: number | string): string => {
+  const numStr = typeof num === 'string' ? num : num.toString();
+  const parts = numStr.split('.');
+  if (parts[0]) {
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  return parts.join('.');
+};
+
 /**
  * USER BALANCE IN TOKENS
  */
@@ -217,11 +309,66 @@ const payoutMultiplier = computed(() => {
 });
 
 /**
+ * SLIDER STATE
+ */
+const minMultiplier = 1.01;
+const maxMultiplier = 10;
+const sliderMultiplier = ref(2.86);
+
+function updateMultiplierFromSlider() {
+  const bet = parseNum(betInput.value);
+  if (bet > 0 && sliderMultiplier.value > 1) {
+    // desiredWin = bet * (multiplier - 1)
+    const desiredWin = bet * (sliderMultiplier.value - 1);
+    desiredWinInput.value = desiredWin.toFixed(2);
+  }
+}
+
+/**
+ * DESIRED PAYOUT INPUT COLOR STATE
+ */
+const desiredPayoutInputClass = computed(() => {
+  const win = parseNum(desiredWinInput.value);
+  const bet = parseNum(betInput.value);
+  
+  // Серый - неактивный (пустой или нет ставки)
+  if (!win || !bet || bet <= 0) {
+    return 'border-[rgba(83,86,103,0.57)] text-[#9497A4] placeholder:text-[#6B6D7A]';
+  }
+  
+  // Красный - ошибка (превышен максимум)
+  if (maxWinTokensNumber.value > 0 && win > maxWinTokensNumber.value) {
+    return 'border-[#FF0101] text-[#FF0101] placeholder:text-[#6B6D7A]';
+  }
+  
+  // Зеленый - валидное значение
+  return 'border-[#88FF00] text-[#88FF00] placeholder:text-[#6B8A5A]';
+});
+
+// Watch for bet/desiredWin changes to update slider
+watch([() => betInput.value, () => desiredWinInput.value], () => {
+  const bet = parseNum(betInput.value);
+  const win = parseNum(desiredWinInput.value);
+  if (bet > 0 && win > 0) {
+    const multiplier = (bet + win) / bet;
+    if (multiplier >= minMultiplier && multiplier <= maxMultiplier) {
+      sliderMultiplier.value = multiplier;
+    }
+  } else if (bet > 0 && win === 0) {
+    // Reset slider to default when win is cleared
+    sliderMultiplier.value = 2.86;
+  }
+});
+
+/**
  * STATS BOXES
  */
 const potentialProfit = computed(() => {
   const win = parseNum(desiredWinInput.value);
-  return win > 0 ? win.toFixed(2) : "0.00";
+  if (win > 0) {
+    return formatNumber(Math.round(win).toString());
+  }
+  return "0";
 });
 
 const winProbability = computed(() => {
@@ -333,7 +480,7 @@ async function onMineSubmit() {
       return;
     }
 
-    const tokenMint = props.pool.tokenMint;
+    const tokenMint = props.pool.tokenMint.toString();
     if (!tokenMint) {
       throw new Error("Pool token mint not found");
     }
@@ -379,3 +526,46 @@ async function onMineSubmit() {
   }
 }
 </script>
+
+<style scoped>
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 13px;
+  height: 10px;
+  background: #FF4B01;
+  border-radius: 2px;
+  cursor: pointer;
+  margin-top: -2px;
+}
+
+.slider::-moz-range-thumb {
+  width: 13px;
+  height: 10px;
+  background: #FF4B01;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 6px;
+  background: transparent;
+  border-radius: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.slider::-moz-range-track {
+  height: 6px;
+  background: #3A3C46;
+  border-radius: 2px;
+}
+
+.slider::-moz-range-progress {
+  height: 6px;
+  background: #FF4B01;
+  border-radius: 2px;
+}
+</style>

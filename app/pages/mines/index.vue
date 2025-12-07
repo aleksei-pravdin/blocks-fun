@@ -1,24 +1,14 @@
 <template>
-  <div class="mx-auto max-w-[1382px] w-full flex flex-col pt-10 gap-8 px-4">
+  <div class="mx-auto max-w-[1382px] w-full flex flex-col pt-18 gap-8 px-4">
     <!-- Header -->
-    <div class="flex items-end justify-between gap-4">
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center gap-1.5">
-          <Arrow class="w-6 h-4" :filled="true" style="width: 24px; height: 16px !important;" />
-          <span class="uppercase font-raj font-semibold text-xl text-[#E5E9EC] tracking-wider" style="letter-spacing:-0.5px; line-height: 1.5;">
-            Tokens
-          </span>
-        </div>
-
-        <h1 class="font-black uppercase text-[48px] leading-[0.79] tracking-[-5%] text-white font-sans" style="letter-spacing:-2px">
-          Explore Tokens
-        </h1>
-      </div>
-
-      <CreateMineButton variant="clipped" />
-    </div>
-
-    <div class="h-px w-full bg-[#262B33]"></div>
+    <PageHeader
+      title="Explore Tokens"
+      badge="Tokens"
+    >
+      <template #actions>
+        <CreateMineButton variant="clipped" />
+      </template>
+    </PageHeader>
 
     <div
       class="w-full text-white grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-[20px] pb-[200px]"
@@ -98,6 +88,8 @@
 <script setup lang="ts">
 import MineOpenIcon from "~/assets/svg/mine_open_icon.svg";
 import Arrow from "~/assets/svg/arrow.svg";
+import PageHeader from "~/components/PageHeader.vue";
+import CreateMineButton from "~/components/Mines/CreateMineButton.vue";
 
 const assets = ref([
   {
